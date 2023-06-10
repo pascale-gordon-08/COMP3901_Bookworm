@@ -17,19 +17,20 @@ Chatbot that is able to answer questions about a document.
     pip install -r requirements.txt
     flask --app app --debug run
     ```
-    #### In Case of Script Error
+    ### In Case of Script Error
     
-        If an error occurs that looks like this --> “...cannot be loaded because running scripts is disabled on this system” follow these steps.
-            1. Open start and search powershell and run it as administrator
-            2. If already at \WINDOWS\system32 you may enter this command --> Set-ExecutionPolicy RemoteSigned
-            2.b. (Skip if you were already at \WINDOWS\system32) To navigate to system32 enter the following then proceed with step 2.
-                --> cd \
-                --> cd .\Windows\System32\
-            3. Enter Y to accept
-            4. Go back to your terminal where you received the error and re-enter your last command.
+    If an error occurs that looks like this --> “...cannot be loaded because running scripts is disabled on this system” follow these steps.
+    
+        1. Open start and search powershell and run it as administrator
+        2. If already at \WINDOWS\system32 you may enter this command --> Set-ExecutionPolicy RemoteSigned
+        2.b. (Skip if already at \WINDOWS\system32) To navigate to system32 enter the following then proceed with this section's step 2.
+            --> cd \
+            --> cd .\Windows\System32\
+        3. Enter Y to accept
+        4. Go back to your terminal where you received the error and re-enter the last command that was typed before you got the error.
        
-6. Click on http://127.0.0.1:8080 or copy and paste it in your browser to view the webpage.
+6. Click on the address that looks like this --> http://127.0.0.1:8080 or copy and paste it in your browser to view the webpage.
     ```
     To stop the server at anytime you can press 'ctrl c' . That would re-enable typing commands.
-    -->Additionally to run the server again just type the command at step'4.d.' again.
+    Additionally, to run the server again just type the command 'flask --app app --debug run' again.
    ```
