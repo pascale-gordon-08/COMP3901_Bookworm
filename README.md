@@ -7,10 +7,10 @@ INSTRUCTIONS FOR RUNNING THE APP
 2. Ensure that python is installed on your computer. If it isn't, you may download it here --> https://www.python.org/downloads/
 3. Clone the repository and navigate to the folder using the terminal.
 4. Once in the folder, type the following commands.
-    a)    python -m venv venv
-    b)   ./venv/Scripts/activate
-    c)    pip install -r requirements.txt
-    d)    flask --app app --debug run
+    a.)    python -m venv venv
+    b.)   ./venv/Scripts/activate
+    c.)    pip install -r requirements.txt
+    d.)    flask --app app --debug run
     **If an error occurs that looks like this --> “...cannot be loaded because running scripts is disabled on this system” follow these steps.
         1. Open start and search powershell and run it as administrator
         2. If already at \WINDOWS\system32 you may enter this command --> Set-ExecutionPolicy RemoteSigned
