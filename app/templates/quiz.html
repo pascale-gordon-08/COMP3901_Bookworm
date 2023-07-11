@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block main %}
+<title>Bookworm Quiz</title>
+<div class="jumbotron area" style="background-image: linear-gradient(to bottom, #0C91C5, #5EB7B5);">
+    <div class="container-fluid  d-flex align-items-center flex-column">
+        <img src="/static/images/topicon.png" alt="" class="page-icon">
+        <h1 class="home-text01">Bookworm Quiz!</h1>
+        <p class="lead">Test how much you remember</p>      
+    </div>
+</div>   
+<div class="container m">
+    <h1>Select a Subject</h1>
+    <button class="btn-sub">Subject 1</button>
+    <button class="btn-sub">Subject 2</button>
+    <button class="btn-sub">Subject 3</button>
+    <div>
+        <button class="start">Start</button>
+    </div>
+</div>
+{% endblock %}

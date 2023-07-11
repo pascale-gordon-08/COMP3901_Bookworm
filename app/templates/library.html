@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="jumbotron area" style="background-image: linear-gradient(to bottom, #0C91C5, #5EB7B5);">
+  <div class="container-fluid  d-flex align-items-center flex-column">
+      <img src="/static/images/topicon.png" alt="" class="page-icon">
+      <h1 class="home-text01">Welcome to Bookworm Chat Library</h1>
+      <p class="lead">Select a PDF and start chatting with Bookworm</p>      
+  </div>
+</div>
+<div class="container align-items-center">  
+  <div class="row">   
+    {% for librarypdfs in pdfs %}        
+    <div class="card col-md-4 m-3" style="width: 200px; height: 200px;">
+      <div class="box"> <a class="link-secondary text-wrap" href="{{ url_for('chat') }}"><h3> {{ librarypdfs }}</h3></a> </div> 
+    </div>
+    {% endfor %}
+  </div>
+</div>   
+{% endblock %}

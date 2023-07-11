@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<head>
+    {{ dropzone.load_css() }}
+    {{ dropzone.style('border: 2px dashed #0087F7; margin: 10%; min-height: 200px;') }}
+</head>
+<div class="jumbotron area" style="background-image: linear-gradient(to bottom, #0C91C5, #5EB7B5);">
+    <div class="container-fluid  d-flex align-items-center flex-column">
+        <img src="/static/images/topicon.png" alt="" class="page-icon">
+        <h1 class="home-text01">Chat with Bookworm!</h1>
+        <p class="lead">Upload your PDF and press chat or view library</p>      
+    </div>
+</div>
+
+<div>    
+    {{ form.hidden_tag() }}
+    {{ dropzone.create(action='upload', method='POST') }}
+    {{ dropzone.load_js() }}
+    {{ dropzone.config() }}    
+</div>
+<div class="row">
+    <div class="col-sm">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('chat') }}" role="button">Chat</a>
+    </div>
+    <div class="col-sm">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('library') }}" role="button">Library</a>
+    </div>
+</div>
+<div>    
+    {% for text in extracted_text %}      
+    <p>{{ text }}</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

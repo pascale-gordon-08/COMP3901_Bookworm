@@ -1,0 +1,31 @@
+
+{% extends "base.html" %}
+{% block main %}
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-sm">
+            <img src="/static/images/spimage.jpeg" alt="bookworm" style="width:300;height:200px;">
+        </div>
+        <div class="col-sm">
+            <h1>Sign In</h1>
+            {% include 'flashes.html' %}
+            <div class="photo-card photo-card-solid">
+                <form method="POST" action="/signin">
+                    {{ form.csrf_token }}
+                    <div class="form-group">
+                        {{ form.email.label() }}
+                        {{ form.email(class='form-control') }}
+                    </div> 
+                    <div class="form-group">
+                        {{ form.password.label() }}
+                        {{ form.password(class='form-control') }}
+                    </div>
+                    <button class="btn btn-submit btn-primary btn-block" type="submit">Sign In</button>                    
+                </form>
+
+            </div>
+        </div>        
+    </div>
+    
+</div>
+{% endblock %}

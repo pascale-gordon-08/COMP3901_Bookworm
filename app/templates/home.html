@@ -1,7 +1,99 @@
-{% extends "base.html" %}
 
-{% block main %}
-<h1>Flask Starter Code</h1>
-<p class="lead">Use this starter template for your Flask apps as a way to quickly start any new project.<br>
-All you get are these files and mostly barebones HTML/CSS files.</p>
+{% extends "base.html" %} {% block main %}
+
+  <div class="jumbotron">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm">
+          <h1 class="tagline">
+            <b>Discover Knowledge <br />
+            at Your Fingertips!</b>
+          </h1>
+          <p class="lead">
+          <p>
+            BookWorm Chat is a chatbot that can answer queries<br />
+            related to your uploaded textbooks. You may also <br />
+            explore the library and take quizzes. Try it today!
+          </p>
+          </p>
+          </div>
+
+          <div class="col-sm">
+            <img src="/static/images/AI.jpg" alt="AI" style="width:300;height:200px;">
+          </div>            
+      </div>
+          <p class="lead">
+            <a class="btn btn-primary btn-lg" href="{{ url_for('signup') }}" role="button">Get Started</a>
+          </p>
+        </div>
+        <br>
+        <div
+          class="jumbotron"
+          style="background-image: linear-gradient(#87d0ed, #88d1ee, #82C7C8)"
+        >
+        <br>
+
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-sm">
+          <h2>Why use Bookworm Chat?</h2>
+          <p class="lead"></p>
+          <p>
+    
+              <b>Instant Answers:</b> Bookworm Chat provides immediate and accurate
+              answers to queries related to your uploaded textbooks, it will 
+              save you valuable time and effort in searching for information.  <br>
+              <br>
+              <b>Relevant and Accurate Information:</b> With Bookworm Chat, you can 
+              trust that the information provided is sourced directly from the uploaded
+              textbooks, ensuring accuracy and relevance to your study materials<br>
+              <br>
+              <b>Reduced Fatigue and Frustration:</b> By eliminating the need to manually 
+              search through textbooks, Bookworm Chat reduces fatigue and frustration 
+              associated with finding specific information, making your learning process
+              more enjoyable and efficient.
+          </p>
+        </div>
+
+      <div class="col-sm">
+        <img src="/static/images/bookworm.jpg" alt="BookWormChat photo" style="width:200;height:250px;">
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+
+        <div class="jumbotron">
+          <h2>How to use Bookworm Chat</h2>
+          <p class="lead"></p>
+          <p>
+            <b>STEP 1:</b> After you sign up/login, select upload textbook 
+            in the <br> 
+            navigation bar.
+            Drag or upload your PDF file then press chat. 
+            <br>Alternatively, you may select view library, select a PDF, then press 
+            chat. <br>
+            <br>
+            <b>STEP 2:</b> You can start asking questions related to the
+            textbook's content.<br>
+            Simply type in your query, or choose from 
+            the suggested questions.<br>
+            Bookworm Chat will process 
+            your question to provide you with accurate <br>
+            and relevant answers. <br>
+            <br>
+            <b>STEP 3:</b> Bookworm Chat provides a quiz feature 
+            to test your knowledge <br>
+            and assess your understanding of the subject matter.
+            Select 'Take quiz' <br>
+            in the navigation bar to do so.
+          </p>
+        </div>   
+        <div>
+        <p class="lead">
+          <a class="btn btn-primary btn-lg" href="{{ url_for('chat') }}" role="button" ;
+            >Get Started</a>
+        </p>
+      </div>
+</div>
 {% endblock %}
