@@ -33,47 +33,6 @@ def remove_stopwords(query):
 app.config.update(DROPZONE_MAX_FILE_SIZE = 1024, DROPZONE_UPLOAD_MULTIPLE = False, DROPZONE_ENABLE_CSRF = True)
 dropzone = Dropzone(app)
 
-"""PDF Processing"""
-def extract_text_from_pdf(pdf_path, start_page):
-    text_list = []
-
-    with open(pdf_path, 'rb') as file:
-        reader = PyPDF2.PdfReader(file)
-
-        # Check if the start_page is within the valid range
-        #if start_page < 0 or start_page >= reader.numPages:
-            #raise ValueError('Invalid start_page value')
-
-        # Iterate through the pages, starting from the specified start_page
-        for page_num in range(start_page, len(reader.pages)):
-            page = reader.pages[page_num]
-            text = page.extract_text().strip()
-            text_list.append(text)
-
-    return text_list
-
-def preprocess_sentences(sentences):
-    # Remove punctuation
-    sentences = [sentence.translate(str.maketrans('', '', string.punctuation)) for sentence in sentences]
-
-    # Convert to lowercase
-    sentences = [sentence.lower() for sentence in sentences]
-
-    # Tokenize sentences into words
-    #sentences = [word_tokenize(sentence) for sentence in sentences]
-    sentences=[([PorterStemmer().stem(word) for word in nltk.word_tokenize(sentence)]) for sentence in sentences]
-
-    # Remove stopwords
-    stop_words = set(stopwords.words('english'))
-    sentences = [[word for word in sentence if word not in stop_words] for sentence in sentences]
-
-    # Remove numbers and special characters
-    sentences = [[re.sub('[^a-zA-Z]', '', word) for word in sentence] for sentence in sentences]
-
-    # Remove empty strings
-    sentences = [[word for word in sentence if word] for sentence in sentences]
-
-    return sentences
 
 """Login Manager"""
 @login_manager.user_loader
@@ -102,6 +61,7 @@ def upload():
         pdfupload = PDF_file(pdfname)
         db.session.add(pdfupload)
         db.session.commit()
+    
        
     return render_template('upload.html', form = form)
 
