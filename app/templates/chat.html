@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block main %}
+<!--
 <div class="jumbotron">
     <div class="row">
         <div class="col-sm">
@@ -23,5 +24,25 @@
     </div>
 </div>
 
-<p>Key words: {{ filtered_q }}</p>    
+<p>Key words: {{ filtered_q }}</p>
+-->
+<div class="container">
+    <div class="row">
+      <div class="col-md-8">
+        <!-- Chat messages area -->
+        <div id="chat-messages" class="card">
+          <div class="card-body">
+            <!-- Chat message bubbles will be added here dynamically -->
+          </div>
+        </div>
+        <!-- Chat input area -->
+        <div class="input-group mt-3">
+          <input id="chat-input" type="text" class="form-control" placeholder="Type your message...">
+          <div class="input-group-append">
+            <button id="send-button" class="btn btn-primary">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
 {% endblock %}

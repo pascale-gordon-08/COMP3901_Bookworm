@@ -100,7 +100,7 @@ ranked_pages = sorted(enumerate(bm25_scores), key=lambda x: x[1], reverse=True)
 
 ans_page=ranked_pages[0][0]
 p= x[ans_page]
-openai.api_key = "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"
+openai.api_key = "placeKeyhere"
 
 def ask_model(query, page):
     prompt = page.join([
