@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, EmailField, TextAreaField, BooleanField, validators
+from wtforms import StringField, PasswordField, EmailField, TextAreaField, BooleanField, validators, SubmitField
 from wtforms.validators import InputRequired, Length, EqualTo
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 
@@ -21,5 +21,6 @@ class LoginForm(FlaskForm):
     
 
 class ChatForm(FlaskForm):
-    query = TextAreaField('Enter Query')
+    messages = StringField(validators=[InputRequired()])
+    submitquery = SubmitField('Submit')
     

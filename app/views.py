@@ -1,8 +1,9 @@
-import os, nltk, PyPDF2, time,math, re, string
-import math
+import os, nltk, PyPDF2, time, math, re, string, openai, requests
+
 from . import db, login_manager
-from app import app
-from flask import render_template, request, redirect, url_for, flash, send_file
+from app import app, bm25
+from .bm25 import (extract_text_from_pdf,ask_model,preprocess_sentences,preprocess_query,calculate_bm25_score, query)
+from flask import render_template, request, redirect, url_for, flash, send_file, jsonify
 from werkzeug.utils import secure_filename
 from .forms import UploadForm, RegistrationForm, ChatForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -81,12 +82,70 @@ def take_quiz():
     return render_template('quiz.html')
 
 
+
 @app.route('/chat', methods=['GET','POST'])
 def chat():  
-    form = ChatForm()    
-    query = str(form.query.data)
-    filtered_q = remove_stopwords(query)     
-    return render_template('chat.html', form = form, filtered_q = filtered_q)
+    form = ChatForm()
+    if form.validate_on_submit():
+        
+        query = form.messages.data
+        answer = ask_model(query)
+        
+        return render_template('chat.html', form=form, answer = answer, query = query)
+    # chathtml = render_template('container.html', messages = chat_messages)
+    # if request.is_json:  
+    #     return jsonify(html=chathtml)  # Return the updated chat container as JSON
+
+    return render_template('chat.html', form=form)
+
+"""@app.route('/prompts', methods=['POST'])
+def messages():
+    chathtml = render_template('container.html', messages = chat_messages)
+    if request.is_json:  
+        return jsonify(html=chathtml)  # Return the updated chat container as JSON"""
+    
+
+
+"""# @app.route('/extract', methods=['POST'])
+# def extract_text():
+#     pdf_path = request.json['pdf_path']
+#     start_page = request.json['start_page']
+#     text_list = extract_text_from_pdf(pdf_path, start_page)
+#     return jsonify(text_list)
+
+# @app.route('/ask', methods=['POST'])
+# def ask_question():
+#     form = ChatForm()
+    
+#     queries = request.json[form.messages.data]
+#     page = request.json['page']
+#     answer = ask_model(queries, page)
+#     return jsonify(answer)
+
+# @app.route('/preprocess', methods=['POST'])
+# def preprocess_sentences_endpoint():
+#     sentences = request.json['sentences']
+#     preprocessed = preprocess_sentences(sentences)
+#     return jsonify(preprocessed)
+
+# @app.route('/preprocess_query', methods=['POST'])
+# def preprocess_query_endpoint():
+#     question = request.json['question']
+#     preprocessed = preprocess_query(question)
+#     return jsonify(preprocessed)
+
+# @app.route('/calculate_score', methods=['POST'])
+# def calculate_bm25_score_endpoint():
+#     page_terms = request.json['page_terms']
+#     query_terms = request.json['query_terms']
+#     page_length = request.json['page_length']
+#     avg_page_length = request.json['avg_page_length']
+#     total_pages = request.json['total_pages']
+#     term_idf = request.json['term_idf']
+#     score = calculate_bm25_score(page_terms, query_terms, page_length, avg_page_length, total_pages, term_idf)
+#     return jsonify(score)"""
+
+
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -169,3 +228,30 @@ def flash_errors(form):
                 getattr(form, field).label.text,
                 error
 ), 'danger')
+"""
+# BASE_URL = 'http://127.0.0.1:8080'
+# def test_extract():
+#     endpoint = '/extract'
+#     url = BASE_URL + endpoint
+#     data = {
+#         "pdf_path": "../test.pdf",
+#         "start_page": 0
+#     }
+#     response = requests.post(url, json=data)
+#     print("Extracted text:")
+#     print(response.json())
+
+# # Test the /ask endpoint
+# def test_ask(query):
+#     endpoint = '/ask'
+#     url = BASE_URL + endpoint
+#     data = {
+#         "query": query,
+        
+#     }
+#     response = requests.post(url, json=data)
+#     return response.json()
+
+
+# Test the other endpoints similarly...
+"""
