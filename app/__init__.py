@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from .config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -8,7 +9,7 @@ from flask_wtf.csrf import CSRFProtect
 
 
 app = Flask(__name__)
-
+CORS(app)
 csrf = CSRFProtect(app)
 
 app.config.from_object(Config)

@@ -1,9 +1,10 @@
-import os, nltk, PyPDF2, time, math, re, string, openai, requests
-
+import os, nltk, PyPDF2, time, math, re, string, openai, requests,datetime,language_tool_python
 from . import db, login_manager
-from app import app, bm25
-from .bm25 import (extract_text_from_pdf,ask_model,preprocess_sentences,preprocess_query,calculate_bm25_score, query)
-from flask import render_template, request, redirect, url_for, flash, send_file, jsonify
+from sqlalchemy import func
+from app import app
+from .bm25 import (processing)
+from .lstm import (lstm)
+from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from werkzeug.utils import secure_filename
 from .forms import UploadForm, RegistrationForm, ChatForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,11 +15,31 @@ from flask_dropzone import Dropzone
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
+from language_tool_python import LanguageTool
 
 
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
+
+def correct_sentences(sentences):
+    # Initialize the LanguageTool API client
+    tool = language_tool_python.LanguageTool('en-US')  # You can specify other language codes as well
+
+    corrected_sentences = []
+    for sentence in sentences:
+        # Check the sentence for grammar errors
+        matches = tool.check(sentence)
+        
+        # If there are any suggestions, apply the first suggestion to correct the sentence
+        if matches:
+            corrected_sentence = LanguageTool.correct(sentence, matches[0])
+            corrected_sentences.append(corrected_sentence)
+        else:
+            # If no suggestions, add the original sentence to the corrected list
+            corrected_sentences.append(sentence)
+
+    return corrected_sentences
 
 """Query Processing setup"""
 def remove_stopwords(query):
@@ -37,7 +58,7 @@ dropzone = Dropzone(app)
 
 """Login Manager"""
 @login_manager.user_loader
-def load_user(uid):
+def load_user(uid):    
     return User.query.get(int(uid))
 
 ###
@@ -53,99 +74,82 @@ def home():
 @app.route('/upload', methods = ['POST', 'GET'])
 @login_required
 def upload():
-    """Render the website's upload page."""
+    """Render the website's upload page."""    
     form = UploadForm()    
     if request.method == 'POST':
         pdf = request.files.get('file')
         pdfname = secure_filename(pdf.filename)
-        pdf.save(os.path.join(Config.UPLOAD_FOLDER, pdfname))
+        pdf_path = os.path.join(Config.UPLOAD_FOLDER, pdfname)
+        pdf.save(pdf_path)
         pdfupload = PDF_file(pdfname)
         db.session.add(pdfupload)
         db.session.commit()
-    
-       
+        pdff = PDF_file.query.filter_by(filename=pdfname).first()
+        
+        pdfid = pdff.pid
+        session['filename'] = pdfname
+        session['upload_folder'] = Config.UPLOAD_FOLDER
+        session['pdf_path'] = pdf_path      
+        session['pid']=pdfid       
     return render_template('upload.html', form = form)
 
 
 @app.route('/library')
+@login_required
 def library():
     allPDF = db.session.execute(db.select(PDF_file)).scalars()
     pdfs = []
     for files in allPDF:
-        pdfs.append(files.filename)
-    
-    return render_template('library.html', pdfs=pdfs)   
+        pdfs.append(files.filename)    
+    return render_template('library.html', pdfs=pdfs)
+
+  
+@app.route('/fromlibrary/<librarypdf>', methods=['GET'])
+def fromlibrary(librarypdf):
+    pdfname = librarypdf
+    pdf = PDF_file.query.filter_by(filename=pdfname).first()
+    pdfid = pdf.pid
+    session['filename'] = pdfname
+    session['pid']=pdfid
+    return redirect(url_for('bwc'))
 
 
 @app.route('/take_quiz')
+@login_required
 def take_quiz():
     return render_template('quiz.html')
 
 
+@app.route('/bookwormchat', methods=['GET','POST'])
+@login_required
+def bwc():
+    form = ChatForm()
+    filename = session.get('filename')
+    suggestions = lstm(filename)
+    
+    num_of_pdf = db.session.query(func.count(func.distinct(Conversation.pid))).scalar()
+    print(num_of_pdf)    
+    if request.method == 'POST' and form.validate_on_submit():
+        query = form.messages.data
+        answer = processing(query, filename)             
+        return jsonify(answer = answer)    
+    return render_template('chat.html', form = form, filename = filename, suggestions = suggestions)
+
 
 @app.route('/chat', methods=['GET','POST'])
-def chat():  
+@login_required
+def chat():
     form = ChatForm()
-    if form.validate_on_submit():
-        
+    filename = session.get('filename')    
+    if form.validate_on_submit:
         query = form.messages.data
-        answer = ask_model(query)
-        
-        return render_template('chat.html', form=form, answer = answer, query = query)
-    # chathtml = render_template('container.html', messages = chat_messages)
-    # if request.is_json:  
-    #     return jsonify(html=chathtml)  # Return the updated chat container as JSON
-
-    return render_template('chat.html', form=form)
-
-"""@app.route('/prompts', methods=['POST'])
-def messages():
-    chathtml = render_template('container.html', messages = chat_messages)
-    if request.is_json:  
-        return jsonify(html=chathtml)  # Return the updated chat container as JSON"""
-    
-
-
-"""# @app.route('/extract', methods=['POST'])
-# def extract_text():
-#     pdf_path = request.json['pdf_path']
-#     start_page = request.json['start_page']
-#     text_list = extract_text_from_pdf(pdf_path, start_page)
-#     return jsonify(text_list)
-
-# @app.route('/ask', methods=['POST'])
-# def ask_question():
-#     form = ChatForm()
-    
-#     queries = request.json[form.messages.data]
-#     page = request.json['page']
-#     answer = ask_model(queries, page)
-#     return jsonify(answer)
-
-# @app.route('/preprocess', methods=['POST'])
-# def preprocess_sentences_endpoint():
-#     sentences = request.json['sentences']
-#     preprocessed = preprocess_sentences(sentences)
-#     return jsonify(preprocessed)
-
-# @app.route('/preprocess_query', methods=['POST'])
-# def preprocess_query_endpoint():
-#     question = request.json['question']
-#     preprocessed = preprocess_query(question)
-#     return jsonify(preprocessed)
-
-# @app.route('/calculate_score', methods=['POST'])
-# def calculate_bm25_score_endpoint():
-#     page_terms = request.json['page_terms']
-#     query_terms = request.json['query_terms']
-#     page_length = request.json['page_length']
-#     avg_page_length = request.json['avg_page_length']
-#     total_pages = request.json['total_pages']
-#     term_idf = request.json['term_idf']
-#     score = calculate_bm25_score(page_terms, query_terms, page_length, avg_page_length, total_pages, term_idf)
-#     return jsonify(score)"""
-
-
+        answer = processing(query, filename)
+        date = datetime.date.today()
+        conversation_upload = Conversation(session.get('uid'), session.get('pid'), date, query, answer)
+        db.session.add(conversation_upload)
+        db.session.commit()
+        return jsonify(answer = answer)
+    return jsonify(errors=form.errors)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -166,8 +170,7 @@ def signup():
             flash('Successfully Registered. Now you may Log In!', 'success')            
             return redirect(url_for('signin'))
     else:
-        flash_errors(form)
-        
+        flash_errors(form)        
     return render_template('signup.html', form = form)
 
 
@@ -179,6 +182,8 @@ def signin():
         if user:
             if check_password_hash(user.password, form.password.data):
                 login_user(user)
+                userid = user.uid
+                session['uid']=userid
                 flash('Logged in Successfully', 'success')
                 return redirect(url_for('upload'))
             flash("Invalid email or password!!", 'danger')
@@ -228,30 +233,3 @@ def flash_errors(form):
                 getattr(form, field).label.text,
                 error
 ), 'danger')
-"""
-# BASE_URL = 'http://127.0.0.1:8080'
-# def test_extract():
-#     endpoint = '/extract'
-#     url = BASE_URL + endpoint
-#     data = {
-#         "pdf_path": "../test.pdf",
-#         "start_page": 0
-#     }
-#     response = requests.post(url, json=data)
-#     print("Extracted text:")
-#     print(response.json())
-
-# # Test the /ask endpoint
-# def test_ask(query):
-#     endpoint = '/ask'
-#     url = BASE_URL + endpoint
-#     data = {
-#         "query": query,
-        
-#     }
-#     response = requests.post(url, json=data)
-#     return response.json()
-
-
-# Test the other endpoints similarly...
-"""

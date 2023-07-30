@@ -56,9 +56,9 @@ class Conversation(db.Model):
     answer=db.Column(db.Text)
     
 
-    def __init__(self,user_id,pdf_id,date,question,answer):
+    def __init__(self,user_id,pid,date,question,answer):
         self.user_id=user_id 
-        self.pdf_id= pdf_id
+        self.pid= pid
         self.date= date
         self.question= question
         self.answer= answer

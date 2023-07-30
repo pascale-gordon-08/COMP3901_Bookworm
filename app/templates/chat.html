@@ -1,24 +1,132 @@
 {% extends "base.html" %}
 {% block main %}
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top" style="background-color: #A9DCF2;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('home') }}">
+        <img src="\static\images\logo.png" width="60" height="55" alt="">
+      </a>      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+            {% if active_page == 'home' %}class="active"{% endif %}
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('upload') }}">Upload Textbook</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('take_quiz') }}">Take Quiz</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('library') }}">Library</a>
+          </li>          
+          <li class="nav-item" id="sign-out">
+            <a class="nav-link" href="{{ url_for('signout') }}">Sign Out</a>
+          </li>        
+        </ul>
+      </div>
+    </div>
+</nav>
+<body class="bg-gradient">
+  
+</body>
 
-<div class="chat-container">
-    <div class="row m-3 d-flex align-items-left flex-row">
-        <div class="chat-message response-message">
-            <div>{{ answer }}</div>
-        </div>
+<div class="container d-inline-flex pt-1 z-3">
+  <div class="float-start justify-content-sm-start z- ">
+    <button class="btn rounded bg-white position-relative z-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><b>History</b> <i class="fas fa-bars"></i></button>
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Conversation History</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <p>Below is your history of conversations by pdf</p>
+      </div>
     </div>
-    <div class="row m-3"></div>   
-        <div class="chat-message user-message">
-            <div>{{ query }}</div>
-        </div>
+  </div>
+  <div class="">
+    <div class="container justify-content-center">
+      <div class="row container justify-content-center msg_head border-bottom position-fixed border-start bg-light z-2">
+        <div class="col d-flex align-items-center flex-column">
+            <h3>{{ filename }}</h3>
+        </div>    
+      </div>
     </div>
+  </div>
 </div>
-<form method="POST" action="/chat">
-    {{ form.csrf_token }}
-    <div class="form-group">
-        {{ form.messages(class='form-control', placeholder = "Enter a Query") }}
-    </div>
-    <button class="btn btn-submit btn-primary" type="submit">Send</button> 
-</form>
 
+<div class="col">            
+  <div class="chat-container" id="chatContainer">            
+  
+  </div>
+  <div class="container sticky-sm-bottom" style="height: 100px;"><h5></h5></div>
+  <div class="card-footer d-flex input-group-append fixed-bottom p-2">
+      <form method="POST" action="/chat" id="messageArea" class="container-fluid">
+          {{ form.csrf_token }}
+          <div class="input-group mb-2">
+              {{ form.messages(id='queryInput', class='form-control type_msg', placeholder = "Enter a Query") }}
+              <button class="btn btn-submit btn-secondary" type="submit"><i class="fas fa-paper-plane"></i></button>
+              
+          </div>   
+      </form>
+      <div class="dropup align-self-center">
+          <button type="button" class="btn btn-secondary dropdown-toggle rounded" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Suggested Questions" id="dropdownMenu2">
+              <i class="fas fa-question-circle"></i>
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+              {% for suggestion in suggestions %}
+              <button class="dropdown-item" type="button">{{suggestion}}</button>                        
+              {% endfor %}
+          </div>
+        </div>
+  </div>            
+</div>
+
+   
+
+<script>
+    $(document).ready(function() {
+      function scrollToBottom() {
+            window.scrollTo(0, document.body.scrollHeight);
+        }        
+      $("#messageArea").on("submit", function(event) {
+
+      var rawText = $("#queryInput").val();
+      var queries = $('#messageArea').serialize();
+      var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' + rawText + '</div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
+      var loadDiv = '<div class="d-flex justify-content-start m-5" id="loadingDots"><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"><div class="snippet inline-flex" data-title="dot-flashing"><div class="stage"><div class="dot-flashing"></div></div></div></div></div>';
+      $("#queryInput").val("");
+      $("#chatContainer").append(userHtml);
+      $("#chatContainer").append(loadDiv);
+      
+      $.ajax({
+          
+          type: 'POST',
+          url: '/chat',
+          data: queries,
+          success: function(data) {
+            // Update the content of the resultDiv with the response from the server
+            $("#loadingDots").remove();
+            $('#chatContainer').append('<div class="d-flex justify-content-start mb-5 cont"><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"><div class="msg_cotainer">'+data.answer+'</div></div></div>');
+            
+            scrollToBottom();
+          },
+          error: function(xhr, status, error) {
+            console.error('Error:', error);
+          }
+        });
+        scrollToBottom();      
+      event.preventDefault();
+  });
+});  
+</script>
+
+
+{% endblock %}
+
+{% block footer %}
 {% endblock %}

@@ -9,16 +9,18 @@ import nltk
 import openai
 
 
-def extract_text_from_pdf(pdf_path, start_page):
-    text_list = []
 
+
+def extract_text_from_pdf(pdf_name):
+    text_list = []
+    start_page = 0
+    pdf_path = './uploads/'+pdf_name
     with open(pdf_path, 'rb') as file:
         reader = PyPDF2.PdfReader(file)
 
         # Check if the start_page is within the valid range
         # if start_page < 0 or start_page >= reader.numPages:
         #raise ValueError('Invalid start_page value')
-
         # Iterate through the pages, starting from the specified start_page
         for page_num in range(start_page, len(reader.pages)):
             page = reader.pages[page_num]
@@ -28,9 +30,9 @@ def extract_text_from_pdf(pdf_path, start_page):
     return text_list
 
 
-def ask_model(query):
+def ask_model(query,page):
     prompt = page.join([
-        "Answer the question base on the context\n\n"
+        "Answer the question based on the context.\n\n"
         "Context:" + page + "\n\n"
         "Question:" + query + "\n\n"
         "Answer:"
@@ -97,53 +99,57 @@ def calculate_bm25_score(page_terms, query_terms, page_length, avg_page_length, 
 
 
 # Extract PDF
-extracted_pdf = extract_text_from_pdf(
-    './uploads/info3180-lab1.pdf', 0)
+# filename = session.get('filename')
+def processing(query, filename):
 
-print(len(extracted_pdf))
+    extracted_pdf = extract_text_from_pdf(
+        filename)
 
-preprocessed_sentences = preprocess_sentences(extracted_pdf)
-print(preprocessed_sentences)
+    print(len(extracted_pdf))
 
-
-query = "what is a fork"
-query_terms = preprocess_query(query)
-print(query_terms)
-
-page_lengths = [len(terms) for terms in preprocessed_sentences]
-avg_page_length = sum(page_lengths) / len(page_lengths)
-
-print(page_lengths)
+    preprocessed_sentences = preprocess_sentences(extracted_pdf)
 
 
-term_idf = {}
-total_pages = len(preprocessed_sentences)
+
+    
+    query_terms = preprocess_query(query)
+    print(query_terms)
+
+    page_lengths = [len(terms) for terms in preprocessed_sentences]
+    avg_page_length = sum(page_lengths) / len(page_lengths)
+
+    print(page_lengths)
 
 
-for term in query_terms:
-    # Calculate document frequency for the term - the number of pages containing the term
-    df = sum(1 for terms in preprocessed_sentences if term in terms)
-    # Calculate IDF using the document frequency
-    idf = math.log((total_pages - df + 0.5) / (df + 0.5))
-    term_idf[term] = idf
-
-bm25_scores = [calculate_bm25_score(preprocessed_sentences[i], query_terms, page_lengths[i], avg_page_length, total_pages, term_idf)
-               for i in range(total_pages)
-               ]
-
-ranked_pages = sorted(enumerate(bm25_scores), key=lambda x: x[1], reverse=True)
-
-for page_index, score in ranked_pages:
-    page_number = page_index
-    print(f"Page {page_number}: Score = {score}")
+    term_idf = {}
+    total_pages = len(preprocessed_sentences)
 
 
-ans_page = ranked_pages[0][0]
-print(ans_page)
-page = extracted_pdf[ans_page]
+    for term in query_terms:
+        # Calculate document frequency for the term - the number of pages containing the term
+        df = sum(1 for terms in preprocessed_sentences if term in terms)
+        # Calculate IDF using the document frequency
+        idf = math.log((total_pages - df + 0.5) / (df + 0.5))
+        term_idf[term] = idf
 
-openai.api_key = "api key here"
+    bm25_scores = [calculate_bm25_score(preprocessed_sentences[i], query_terms, page_lengths[i], avg_page_length, total_pages, term_idf)
+                for i in range(total_pages)
+                ]
 
-result = ask_model(query)
+    ranked_pages = sorted(enumerate(bm25_scores), key=lambda x: x[1], reverse=True)
 
-print(result)
+    for page_index, score in ranked_pages:
+        page_number = page_index
+        print(f"Page {page_number}: Score = {score}")
+
+
+    ans_page = ranked_pages[0][0]
+    print(ans_page)
+    page = extracted_pdf[ans_page]
+
+    openai.api_key = "your key here"
+
+    result = ask_model(query,page)
+
+    print(result)
+    return result

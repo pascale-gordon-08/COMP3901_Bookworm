@@ -1,7 +1,37 @@
 {% extends "base.html" %}
 
 {% block main %}
-
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top" style="background-color: #A9DCF2;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('home') }}">
+        <img src="\static\images\logo.png" width="60" height="55" alt="">
+      </a>      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto nav-pills">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+            {% if active_page == 'home' %}class="active"{% endif %}
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active btn-outline-dark" href="{{ url_for('upload') }}">Upload Textbook</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('take_quiz') }}">Take Quiz</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('library') }}">Library</a>
+          </li>          
+          <li class="nav-item" id="sign-out">
+            <a class="nav-link" href="{{ url_for('signout') }}">Sign Out</a>
+          </li>        
+        </ul>
+      </div>
+    </div>
+  </nav>
 <head>
     {{ dropzone.load_css() }}
     {{ dropzone.style('border: 2px dashed #0087F7; margin: 10%; min-height: 200px;') }}
@@ -14,24 +44,36 @@
     </div>
 </div>
 
-<div>    
+<div>  
     {{ form.hidden_tag() }}
     {{ dropzone.create(action='upload', method='POST') }}
     {{ dropzone.load_js() }}
     {{ dropzone.config() }}    
 </div>
-<div class="row">
-    <div class="col-sm">
-        <a class="btn btn-primary btn-lg" href="{{ url_for('chat') }}" role="button">Chat</a>
-    </div>
-    <div class="col-sm">
-        <a class="btn btn-primary btn-lg" href="{{ url_for('library') }}" role="button">Library</a>
-    </div>
+<div class="container  d-flex justify-content-center pb-4">    
+        <a class="btn btn-primary btn-dark m-4 btn-lg" href="{{ url_for('bwc') }}" role="button">Chat</a>  
+    
+        <a class="btn btn-outline-dark m-4 btn-lg" href="{{ url_for('library') }}" role="button"><b>Library</b></a>
+    
 </div>
 <div>    
     {% for text in extracted_text %}      
     <p>{{ text }}</p>
     {% endfor %}
 </div>
+
+<script>
+    function hideDiv() {
+    // Get the div element by its ID
+    var hideDiv1 = document.getElementById("sign-up");
+    var hideDiv2 = document.getElementById("sign-in");
+
+    // Hide the div by changing its display property to "none"
+    hideDiv1.style.display = "none";
+    hideDiv2.style.display = "none";
+    
+
+}
+</script>
 
 {% endblock %}
