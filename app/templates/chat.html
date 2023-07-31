@@ -36,31 +36,61 @@
 </body>
 
 <div class="container d-inline-flex pt-1 z-3">
-  <div class="float-start justify-content-sm-start z- ">
-    <button class="btn rounded bg-white position-relative z-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><b>History</b> <i class="fas fa-bars"></i></button>
-    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+  <div class="float-start justify-content-sm-start">
+    
+    <div class="offcanvas offcanvas-start bg-primary-subtle" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
       <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Conversation History</h5>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body">
         <p>Below is your history of conversations by pdf</p>
+        <div class="list-group" id="file-list">
+          {% for name, pid in historynames %}
+              
+              <a href="/bookwormchat/{{ pid }}" data-pid="{{ pid }}" class="filename-link list-group-item list-group-item-action list-group-item-secondary border-1">{{ name }}</a>
+              
+          {% endfor %}
+        </div>      
       </div>
     </div>
   </div>
-  <div class="">
-    <div class="container justify-content-center">
-      <div class="row container justify-content-center msg_head border-bottom position-fixed border-start bg-light z-2">
-        <div class="col d-flex align-items-center flex-column">
-            <h3>{{ filename }}</h3>
-        </div>    
+ 
+
+  <div class="container-fluid justify-content-center border-bottom position-fixed border-start bg-light z-2 m-0">
+    <div class="row">
+      <div class="col-6">
+        <button class="btn rounded bg-light me-5 justify-content-start" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><b>History</b> <i class="fas fa-bars"></i></button>
       </div>
-    </div>
-  </div>
+      <div class="col-6">
+        <h3>{{ filename }}</h3>
+      </div>      
+    </div>      
+  </div>   
 </div>
 
+
 <div class="col">            
-  <div class="chat-container" id="chatContainer">            
+  <div class="chat-container" id="chatContainer">
+    {% if historynames %}
+    
+    <ul>
+        {% for question, answer in pdfhistory %}
+        <div class="d-flex justify-content-end mb-4">
+          <div class="msg_cotainer_send">{{ question }}</div>
+          <div class="img_cont_msg">
+            <img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg">
+          </div>
+        </div>
+        <div class="d-flex justify-content-start mb-5 cont">
+          <div class="img_cont_msg">
+            <img src="/static/images/fav.ico" class="rounded-circle user_img_msg">
+            <div class="msg_cotainer">{{ answer }}</div>
+          </div>
+        </div>            
+        {% endfor %}
+    </ul>
+{% endif %}          
   
   </div>
   <div class="container sticky-sm-bottom" style="height: 100px;"><h5></h5></div>
@@ -79,7 +109,7 @@
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
               {% for suggestion in suggestions %}
-              <button class="dropdown-item" type="button">{{suggestion}}</button>                        
+              <button class="dropdown-item" type="button" onclick="selectSuggestion('{{ suggestion }}')">{{suggestion}}</button>                        
               {% endfor %}
           </div>
         </div>
@@ -89,16 +119,33 @@
    
 
 <script>
+  function selectSuggestion(suggestion) {
+      var inputField = document.getElementById('queryInput');
+      inputField.value = suggestion;
+      }     
     $(document).ready(function() {
+      $(".filename-link").click(function (event) {
+                event.preventDefault(); // Prevent the default link behavior
+
+                const pid = $(this).data("pid");
+                const url = `/bookwormchat/${pid}`;
+
+                // Update the URL without reloading the page
+                window.history.pushState({ pid: pid }, '', url);
+
+                // Reload the page to fetch and display file details
+                location.reload();
+            });
       function scrollToBottom() {
             window.scrollTo(0, document.body.scrollHeight);
-        }        
+        }
+           
       $("#messageArea").on("submit", function(event) {
 
       var rawText = $("#queryInput").val();
       var queries = $('#messageArea').serialize();
       var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' + rawText + '</div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
-      var loadDiv = '<div class="d-flex justify-content-start m-5" id="loadingDots"><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"><div class="snippet inline-flex" data-title="dot-flashing"><div class="stage"><div class="dot-flashing"></div></div></div></div></div>';
+      var loadDiv = '<div class="d-flex justify-content-start m-5" id="loadingDots"><div class="img_cont_msg"><img src="/static/images/fav.ico" class="rounded-circle user_img_msg"><div class="snippet inline-flex" data-title="dot-flashing"><div class="stage"><div class="dot-flashing"></div></div></div></div></div>';
       $("#queryInput").val("");
       $("#chatContainer").append(userHtml);
       $("#chatContainer").append(loadDiv);
@@ -111,7 +158,7 @@
           success: function(data) {
             // Update the content of the resultDiv with the response from the server
             $("#loadingDots").remove();
-            $('#chatContainer').append('<div class="d-flex justify-content-start mb-5 cont"><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"><div class="msg_cotainer">'+data.answer+'</div></div></div>');
+            $('#chatContainer').append('<div class="d-flex justify-content-start mb-5 cont"><div class="img_cont_msg"><img src="/static/images/fav.ico" class="rounded-circle user_img_msg"><div class="msg_cotainer">'+data.answer+'</div></div></div>');
             
             scrollToBottom();
           },

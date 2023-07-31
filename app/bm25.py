@@ -32,7 +32,7 @@ def extract_text_from_pdf(pdf_name):
 
 def ask_model(query,page):
     prompt = page.join([
-        "Answer the question based on the context.\n\n"
+        "Answer the question base on the context.\n\n"
         "Context:" + page + "\n\n"
         "Question:" + query + "\n\n"
         "Answer:"

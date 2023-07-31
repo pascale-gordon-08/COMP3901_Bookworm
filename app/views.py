@@ -22,34 +22,6 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
 
-def correct_sentences(sentences):
-    # Initialize the LanguageTool API client
-    tool = language_tool_python.LanguageTool('en-US')  # You can specify other language codes as well
-
-    corrected_sentences = []
-    for sentence in sentences:
-        # Check the sentence for grammar errors
-        matches = tool.check(sentence)
-        
-        # If there are any suggestions, apply the first suggestion to correct the sentence
-        if matches:
-            corrected_sentence = LanguageTool.correct(sentence, matches[0])
-            corrected_sentences.append(corrected_sentence)
-        else:
-            # If no suggestions, add the original sentence to the corrected list
-            corrected_sentences.append(sentence)
-
-    return corrected_sentences
-
-"""Query Processing setup"""
-def remove_stopwords(query):
-    
-    stopwords_list = stopwords.words('english')
-    tokens = nltk.word_tokenize(query)
-    filtered_tokens = [token for token in tokens if token.lower() not in stopwords_list]
-    filtered_q = ', '.join(filtered_tokens)
-    return filtered_q
-
 
 """Dropzone configuration"""
 app.config.update(DROPZONE_MAX_FILE_SIZE = 1024, DROPZONE_UPLOAD_MULTIPLE = False, DROPZONE_ENABLE_CSRF = True)
@@ -126,14 +98,53 @@ def bwc():
     form = ChatForm()
     filename = session.get('filename')
     suggestions = lstm(filename)
-    
-    num_of_pdf = db.session.query(func.count(func.distinct(Conversation.pid))).scalar()
-    print(num_of_pdf)    
+    user_id = session.get('uid')
+    pdfhistory = (
+        db.session.query(PDF_file.filename, PDF_file.pid)
+        .join(Conversation, PDF_file.pid == Conversation.pid)
+        .filter(Conversation.user_id == user_id)
+        .group_by(PDF_file.pid)
+        .all()
+    )
+    historynames = (
+        db.session.query(PDF_file.filename, PDF_file.pid)
+        .join(Conversation, PDF_file.pid == Conversation.pid)
+        .filter(Conversation.user_id == user_id)
+        .group_by(PDF_file.pid)
+        .all()
+    )    
     if request.method == 'POST' and form.validate_on_submit():
         query = form.messages.data
         answer = processing(query, filename)             
         return jsonify(answer = answer)    
-    return render_template('chat.html', form = form, filename = filename, suggestions = suggestions)
+    return render_template('chat.html', form = form, filename = filename, suggestions = suggestions, historynames = historynames)
+
+@app.route('/bookwormchat/<int:pid>', methods=['GET','POST'])
+@login_required
+def bwch(pid):
+    form = ChatForm()
+    pdfname = PDF_file.query.filter_by(pid=pid).first()
+    session['filename'] = pdfname.filename
+    session['pid']=pid
+    filename = session.get('filename')
+    suggestions = lstm(filename)
+    user_id = session.get('uid')    
+    pdfhistory = (db.session.query(Conversation.question, Conversation.answer)
+    .filter(Conversation.pid == pid, Conversation.user_id == user_id)
+    .all()
+    )
+    historynames = (
+        db.session.query(PDF_file.filename, PDF_file.pid)
+        .join(Conversation, PDF_file.pid == Conversation.pid)
+        .filter(Conversation.user_id == user_id)
+        .group_by(PDF_file.pid)
+        .all()
+    )
+    if request.method == 'POST' and form.validate_on_submit():
+        query = form.messages.data
+        answer = processing(query, filename)             
+        return jsonify(answer = answer)    
+    return render_template('chat.html', form = form, filename = filename, suggestions = suggestions, pdfhistory = pdfhistory, historynames = historynames)
 
 
 @app.route('/chat', methods=['GET','POST'])
