@@ -9,4 +9,5 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY', 'Som3$ec5etK*y')
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://')
+    API_KEY = os.environ.get('API_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

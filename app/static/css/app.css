@@ -42,32 +42,7 @@ p {
     color: #ffff;
 }
 
-
-
-.file-drop-area {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 450px;
-    max-width: 100%;
-    padding: 25px;
-    border: 1px dashed rgba(255, 255, 255, 0.4);
-    border-radius: 3px;
-    transition: 0.2s;
    
-  }
-  
-  .choose-file-button {
-    flex-shrink: 0;
-    background-color: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    padding: 8px 15px;
-    margin-right: 10px;
-    font-size: 12px;
-    text-transform: uppercase;
-  }
-  
   .file-message {
     font-size: small;
     font-weight: 300;
@@ -143,15 +118,18 @@ p {
 	margin-top: auto;
 	margin-bottom: auto;
 }
-.card{
-	height: 500px;
-	border-radius: 15px !important;
-	background-color: rgba(0,0,0,0.4) !important;
-}
+
 .contacts_body{
 	padding:  0.75rem 0 !important;
 	overflow-y: auto;
 	white-space: nowrap;
+}
+.card:hover {
+    transform: scale(1.1);
+  }
+
+.card {
+transition: transform 0.2s ease;
 }
 
 .card-header{

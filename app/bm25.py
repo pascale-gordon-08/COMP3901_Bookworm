@@ -2,6 +2,7 @@ import math
 import PyPDF2
 import re
 import string
+from .config import Config
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
@@ -52,7 +53,6 @@ def preprocess_sentences(sentences):
     sentences = [sentence.lower() for sentence in sentences]
 
     # Tokenize sentences into words
-    #sentences = [word_tokenize(sentence) for sentence in sentences]
     sentences = [([PorterStemmer().stem(word)
                   for word in nltk.word_tokenize(sentence)]) for sentence in sentences]
 
@@ -74,8 +74,6 @@ def preprocess_sentences(sentences):
 def preprocess_query(question):
     stop_words = set(stopwords.words('english'))
 
-    #question= ' '.join([word for word in nltk.word_tokenize(question) if word.lower() not in stop_words])
-    #question= ' '.join([PorterStemmer().stem(word) for word in question])
     question = ' '.join([PorterStemmer().stem(word.lower()) for word in nltk.word_tokenize(
         question) if word.lower() not in stopwords.words('english')])
     question = ' '.join([re.sub('[^a-zA-Z\s]', '', question)])
@@ -98,8 +96,7 @@ def calculate_bm25_score(page_terms, query_terms, page_length, avg_page_length, 
     return score
 
 
-# Extract PDF
-# filename = session.get('filename')
+#Function to accept queries and filenames
 def processing(query, filename):
 
     extracted_pdf = extract_text_from_pdf(
@@ -108,9 +105,6 @@ def processing(query, filename):
     print(len(extracted_pdf))
 
     preprocessed_sentences = preprocess_sentences(extracted_pdf)
-
-
-
     
     query_terms = preprocess_query(query)
     print(query_terms)
@@ -120,10 +114,8 @@ def processing(query, filename):
 
     print(page_lengths)
 
-
     term_idf = {}
     total_pages = len(preprocessed_sentences)
-
 
     for term in query_terms:
         # Calculate document frequency for the term - the number of pages containing the term
@@ -142,12 +134,11 @@ def processing(query, filename):
         page_number = page_index
         print(f"Page {page_number}: Score = {score}")
 
-
     ans_page = ranked_pages[0][0]
     print(ans_page)
     page = extracted_pdf[ans_page]
 
-    openai.api_key = "your key here"
+    openai.api_key = Config.API_KEY
 
     result = ask_model(query,page)
 

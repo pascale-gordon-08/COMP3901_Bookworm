@@ -34,8 +34,17 @@
 <body class="bg-gradient">
   
 </body>
-
-<div class="container d-inline-flex pt-1 z-3">
+<div class="container-fluid justify-content-center border-bottom position-fixed border-start bg-light z-2 m-0">
+  <div class="row">
+    <div class="col-6">
+      <button class="btn rounded bg-light me-5 justify-content-start" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><b>History</b> <i class="fas fa-bars"></i></button>
+    </div>
+    <div class="col-6">
+      <h3>{{ filename }}</h3>
+    </div>      
+  </div>      
+</div>  
+<div class="container d-inline-flex z-3">
   <div class="float-start justify-content-sm-start">
     
     <div class="offcanvas offcanvas-start bg-primary-subtle" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
@@ -44,7 +53,7 @@
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body">
-        <p>Below is your history of conversations by pdf</p>
+        <p>Below is your history of conversations by file</p>
         <div class="list-group" id="file-list">
           {% for name, pid in historynames %}
               
@@ -57,21 +66,19 @@
   </div>
  
 
-  <div class="container-fluid justify-content-center border-bottom position-fixed border-start bg-light z-2 m-0">
-    <div class="row">
-      <div class="col-6">
-        <button class="btn rounded bg-light me-5 justify-content-start" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><b>History</b> <i class="fas fa-bars"></i></button>
-      </div>
-      <div class="col-6">
-        <h3>{{ filename }}</h3>
-      </div>      
-    </div>      
-  </div>   
+  
 </div>
 
 
-<div class="col">            
+<div class="col">
+               
   <div class="chat-container" id="chatContainer">
+    <div class="d-flex justify-content-start mb-5 cont">
+      <div class="img_cont_msg">
+        <img src="/static/images/fav.ico" class="rounded-circle user_img_msg">
+        <div class="msg_cotainer">Welcome to Bookworm chat! Please enter a query or click on a suggestion from the <i class="fas fa-question-circle"></i> button</div>
+      </div>
+    </div>
     {% if historynames %}
     
     <ul>

@@ -42,10 +42,20 @@
 <div class="container align-items-center">  
   <div class="row">   
     {% for librarypdfs in pdfs %}        
-    <div class="card col-md-4 m-3" style="width: 200px; height: 200px;">
-      <div class="box"> <a class="link-secondary text-wrap" href="{{ url_for('fromlibrary', librarypdf=librarypdfs) }}"><h3> {{ librarypdfs }}</h3></a> </div> 
+    <div class="card text-center col-md-4 m-3 bg-danger-subtle text-white" style="width: 250px; height: 200px;">
+      <a class="link-dark text-wrap text-decoration-none pt-3" href="{{ url_for('fromlibrary', librarypdf=librarypdfs) }}"><h3> {{ librarypdfs }}</h3></a>
+      <i class="fas fa-file-pdf position-absolute bottom-0 end-0 m-1" style="color: #ff0000;"></i>
     </div>
     {% endfor %}
   </div>
-</div>   
+</div>
+<footer>
+  <div class="footer bg-dark fixed-bottom">
+    <p>&copy; Bookworm Chat 2023</p>
+  </div>
+</footer>
+
+
+{% endblock %}
+{% block footer %}
 {% endblock %}

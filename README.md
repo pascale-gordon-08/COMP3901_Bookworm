@@ -4,7 +4,10 @@ Chatbot that is able to answer questions about a document.
 ### INSTRUCTIONS TO GET STARTED
 1. Ensure that your editor and or terminal is run as administrator. (Note --> I find it easier to use the terminal already built in the editor)
 2. Ensure that python is installed on your computer. If it isn't, you may download it here --> [Download Python](https://www.python.org/downloads/) 
+   1. Ensure Java is installed
+   2. Ensure PostgreSQL is installed
 3. Using the terminal navigate to a folder you would like to have all your files.
+### If Using the Repository
 4. Clone the repository then navigate to the cloned folder using these commands.
     ```bash
     git clone https://github.com/pascale-gordon-08/COMP3901_Bookworm.git
@@ -15,7 +18,7 @@ Chatbot that is able to answer questions about a document.
     python -m venv venv
     ./venv/Scripts/activate
     pip install -r requirements.txt
-    flask --app app --debug run
+    
     ```
     ### In Case of Script Error
     
@@ -29,8 +32,32 @@ Chatbot that is able to answer questions about a document.
         3. Enter Y to accept
         4. Go back to your terminal where you received the error and re-enter the last command that was typed before you got the error.
        
-6. Click on the address that looks like this --> http://127.0.0.1:8080 or copy and paste it in your browser to view the webpage.
-    ```
-    To stop the server at anytime you can press 'ctrl c' . That would re-enable typing commands.
-    Additionally, to run the server again just type the command 'flask --app app --debug run' again.
+6. Create a database in postgresql using the PgAdmin4 app that was installed for PostgreSQL
+7. Ensure that the .env file has the correct information and change fields as necessary. Ensure that you have a working API key
+   ```bash
+      FLASK_DEBUG=True
+      FLASK_RUN_PORT=5000
+      FLASK_RUN_HOST=0.0.0.0
+      SECRET_KEY=Som3$ec5etK*y
+      UPLOAD_FOLDER=./uploads
+      DATABASE_URL=postgresql://postgresqlusernamehere:postgresqlpasswordhere@localhost/databasenamehere
+      API_KEY=yourapikeyhere
    ```
+8. Update the database
+   ```Bash
+   In the terminal -
+   flask db init
+   flask db migrate
+   flask db upgrade
+   ```
+9. Run the server
+   ```bash
+    In the terminal-
+    flask --app app --debug run
+   
+   ```
+10. Click on the address that looks like this --> http://127.0.0.1:5000 or copy and paste it in your browser to view the webpage.
+   ```
+       To stop the server at anytime you can press 'ctrl c' . That would re-enable typing commands.
+       Additionally, to run the server again just type the command 'flask --app app --debug run' again.
+    

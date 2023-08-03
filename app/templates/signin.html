@@ -35,11 +35,9 @@
       </div>
     </div>
   </nav>
-<div class="jumbotron">
+<div class="jumbotron mb-0">
     <div class="row">
-        <div class="col-sm">
-            <img src="/static/images/spimage.jpeg" alt="bookworm" style="width:300;height:200px;">
-        </div>
+        
         <div class="col-sm">
             <h1>Sign In</h1>
             {% include 'flashes.html' %}
@@ -54,10 +52,14 @@
                         {{ form.password.label() }}
                         {{ form.password(class='form-control') }}
                     </div>
-                    <button class="btn btn-submit btn-primary btn-block" type="submit">Sign In</button>                    
+                    <button class="btn btn-submit btn-dark btn-block" type="submit">Sign In</button> 
+                    <p>Don't have an account? <a class="link-dark text-decoration-none" href="{{ url_for('signup') }}"><b>Sign up Today</b> </a></p>                   
                 </form>
 
             </div>
+        </div>
+        <div class="col-sm">
+          <img class="rounded w-50 h-75 shadow-lg ms-5 mt-5" src="/static/images/spimage.jpeg" alt="bookworm" style="width:300;height:200px;">
         </div>        
     </div>
     

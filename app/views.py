@@ -24,6 +24,9 @@ nltk.download('wordnet')
 
 
 """Dropzone configuration"""
+app.config['DROPZONE_ALLOWED_FILE_CUSTOM'] = True
+app.config['DROPZONE_ALLOWED_FILE_TYPE'] = '.pdf'
+app.config['DROPZONE_UPLOAD_MULTIPLE'] = False
 app.config.update(DROPZONE_MAX_FILE_SIZE = 1024, DROPZONE_UPLOAD_MULTIPLE = False, DROPZONE_ENABLE_CSRF = True)
 dropzone = Dropzone(app)
 
@@ -59,6 +62,7 @@ def upload():
         pdff = PDF_file.query.filter_by(filename=pdfname).first()
         
         pdfid = pdff.pid
+        # store filename, upload folder, filepath, and id of the pdf in the session
         session['filename'] = pdfname
         session['upload_folder'] = Config.UPLOAD_FOLDER
         session['pdf_path'] = pdf_path      
@@ -69,8 +73,11 @@ def upload():
 @app.route('/library')
 @login_required
 def library():
+    """Render the website's library page"""
+    #gets all the pdf details from the PDF_file table
     allPDF = db.session.execute(db.select(PDF_file)).scalars()
     pdfs = []
+    #gets all the filenames from the pdf details
     for files in allPDF:
         pdfs.append(files.filename)    
     return render_template('library.html', pdfs=pdfs)
@@ -78,6 +85,7 @@ def library():
   
 @app.route('/fromlibrary/<librarypdf>', methods=['GET'])
 def fromlibrary(librarypdf):
+    """store the filename and ID of the pdf that was clicked and redirect to the chat page"""
     pdfname = librarypdf
     pdf = PDF_file.query.filter_by(filename=pdfname).first()
     pdfid = pdf.pid
@@ -89,12 +97,14 @@ def fromlibrary(librarypdf):
 @app.route('/take_quiz')
 @login_required
 def take_quiz():
+    """Render the website's quiz page"""
     return render_template('quiz.html')
 
 
 @app.route('/bookwormchat', methods=['GET','POST'])
 @login_required
 def bwc():
+    """Render the website's chat page"""
     form = ChatForm()
     filename = session.get('filename')
     suggestions = lstm(filename)
@@ -106,6 +116,7 @@ def bwc():
         .group_by(PDF_file.pid)
         .all()
     )
+    #get the pdf filenames from PDF_file, the pid, from conversation table where user Id is equal to the session ID above
     historynames = (
         db.session.query(PDF_file.filename, PDF_file.pid)
         .join(Conversation, PDF_file.pid == Conversation.pid)
@@ -128,7 +139,9 @@ def bwch(pid):
     session['pid']=pid
     filename = session.get('filename')
     suggestions = lstm(filename)
-    user_id = session.get('uid')    
+    user_id = session.get('uid')
+    #get the query and answer from the conversation table where the pdf Id and user ID is equal to the
+    # session's pdf ID and user ID   
     pdfhistory = (db.session.query(Conversation.question, Conversation.answer)
     .filter(Conversation.pid == pid, Conversation.user_id == user_id)
     .all()
@@ -142,6 +155,8 @@ def bwch(pid):
     )
     if request.method == 'POST' and form.validate_on_submit():
         query = form.messages.data
+        # queries from the form and filename from the session is passed to the processing function from bm25.py
+        # to return the answer to the query and store the message as a string
         answer = processing(query, filename)             
         return jsonify(answer = answer)    
     return render_template('chat.html', form = form, filename = filename, suggestions = suggestions, pdfhistory = pdfhistory, historynames = historynames)
@@ -150,6 +165,7 @@ def bwch(pid):
 @app.route('/chat', methods=['GET','POST'])
 @login_required
 def chat():
+    """Route to store conversations from the chat to the database"""
     form = ChatForm()
     filename = session.get('filename')    
     if form.validate_on_submit:
@@ -165,7 +181,9 @@ def chat():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    """Render the website's sign up page"""
     form = RegistrationForm()
+    #stores new credentials to user table in database on submit
     if form.validate_on_submit():
         fname = form.fname.data
         lname = form.lname.data
@@ -187,7 +205,10 @@ def signup():
 
 @app.route('/signin', methods = ['GET', 'POST'])
 def signin():
+    """Render the website's sign in page"""
     form = LoginForm()
+    #checks if user exist in the database and if the user exists the user is logged in and 
+    # the session's user id is set to the user id that was found
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
@@ -204,6 +225,7 @@ def signin():
 @app.route('/signout')
 @login_required
 def signout():
+    """Redirect to homepage and log out user when sign out is clicked"""
     logout_user()
     return redirect(url_for('home'))
 

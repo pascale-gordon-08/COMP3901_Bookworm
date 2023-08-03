@@ -34,10 +34,10 @@
       </div>
     </div>
   </nav>
-<div class="jumbotron">
+<div class="jumbotron mb-0">
     <div class="row">
         <div class="col-sm">
-            <img src="/static/images/spimage.jpeg" alt="bookworm" style="width:700;height:500px;">
+            <img class="rounded w-75 h-75 shadow-lg ms-4 mt-4" src="/static/images/spimage.jpeg" alt="bookworm">
         </div>
         <div class="col-sm">
             <h1>Sign Up</h1>
@@ -60,8 +60,9 @@
                             {{ form.password(class='form-control', placeholder = "Enter Password") }}
                         </div>
                         <div class="form-group">
-                            <button type="submit" class="btn btn-submit btn-primary container-fluid">Submit</button>            
-                        </div>                       
+                            <button type="submit" class="btn btn-submit btn-primary container-fluid btn-dark">Submit</button>            
+                        </div>
+                        <p>Already have an account? <a class="link-dark text-decoration-none" href="{{ url_for('signin') }}"><b>Sign in here</b> </a></p>                      
                     </form>
                 </div>
             </div>
